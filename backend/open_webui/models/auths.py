@@ -1,5 +1,8 @@
 import logging
+import time
 import uuid
+import requests
+import json
 from typing import Optional
 
 from open_webui.internal.db import Base, get_db
@@ -7,7 +10,7 @@ from open_webui.models.users import UserModel, Users
 from open_webui.env import SRC_LOG_LEVELS
 from pydantic import BaseModel
 from sqlalchemy import Boolean, Column, String, Text
-from open_webui.utils.auth import verify_password
+from open_webui.utils.auth import verify_password, get_password_hash, pwd_context
 
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["MODELS"])
@@ -140,6 +143,55 @@ class AuthsTable:
                         return None
                 else:
                     return None
+        except Exception:
+            return None
+
+    def authenticate_user_yjzf(self, email: str, password: str) -> Optional[UserModel]:
+        if not email.endswith("@yjzf.com"):
+            return None
+        auth_result = self.authenticate_user(email, password)
+        if auth_result:
+            return auth_result
+
+        # 新增用户前判断是否 token 被占用
+        with get_db() as db:
+            auths = db.query(Auth).all()
+            if auths:
+                matched_auth = [
+                    auth for auth in auths
+                    if pwd_context.verify(password, auth.password)
+                ]
+                if matched_auth:
+                    log.info(f"该 token 被占用，{email} 无法新增用户")
+                    return None
+            else:
+                log.info("该 token 未被占用，执行新增用户")
+
+        search_string = "优居优住"
+        try:
+            response = requests.get("https://gitee.com/api/v5/user/enterprises", params={"page": 1, "per_page": 5, "admin": False, "access_token": password})
+            response.raise_for_status()
+            try:
+                json_data = response.json()
+            except json.JSONDecodeError:
+                log.info(f"JSONDecodeError: {email}")
+                return None
+            json_str = json.dumps(json_data, ensure_ascii=False)
+            name = email.replace("@yjzf.com", "")
+            if search_string in json_str:
+                new_user = Auths.insert_new_auth(
+                    email,
+                    get_password_hash(password),
+                    name,
+                    "/user.png",
+                    "admin" if name == "xiejinfu" else "user"
+                )
+                log.info(f"新用户进入 '{email}'")
+                return new_user
+            else:
+                log.info(f"用户验证失败 '{email}'")
+                return None
+
         except Exception:
             return None
 

@@ -8,7 +8,7 @@
 <img
 	crossorigin="anonymous"
 	src={src === ''
-		? `${WEBUI_BASE_URL}/static/favicon.png`
+		? `./static/favicon.png`
 		: src.startsWith(WEBUI_BASE_URL) ||
 			  src.startsWith('https://www.gravatar.com/avatar/') ||
 			  src.startsWith('data:') ||

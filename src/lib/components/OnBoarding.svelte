@@ -2,13 +2,11 @@
 	import { getContext } from 'svelte';
 	const i18n = getContext('i18n');
 
-	import { WEBUI_BASE_URL } from '$lib/constants';
-
 	import Marquee from './common/Marquee.svelte';
 	import SlideShow from './common/SlideShow.svelte';
 	import ArrowRightCircle from './icons/ArrowRightCircle.svelte';
 
-	export let show = true;
+	export let show = false;
 	export let getStartedHandler = () => {};
 </script>
 
@@ -19,7 +17,7 @@
 				<div class=" self-center">
 					<img
 						crossorigin="anonymous"
-						src="{WEBUI_BASE_URL}/static/favicon.png"
+						src="./static/favicon.png"
 						class=" w-6 rounded-full"
 						alt="logo"
 					/>
