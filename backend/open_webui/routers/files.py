@@ -67,7 +67,9 @@ def upload_file(
         )
 
         try:
-            process_file(request, ProcessFileForm(file_id=id), user=user)
+            # FIXME 这里需要处理更多的非文本文件类型
+            if not file.content_type.startswith("image/") :
+                process_file(request, ProcessFileForm(file_id=id), user=user)
             file_item = Files.get_file_by_id(id=id)
         except Exception as e:
             log.exception(e)
