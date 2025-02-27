@@ -553,6 +553,7 @@ async def generate_chat_completion(
     idx = 0
 
     payload = {**form_data}
+    log.info(f"payload raw: {payload}")
     metadata = payload.pop("metadata", None)
 
     model_id = form_data.get("model")
@@ -636,6 +637,7 @@ async def generate_chat_completion(
 
     # Convert the modified body back to JSON
     payload = json.dumps(payload)
+    log.info(f"payload request: {payload}")
 
     r = None
     session = None
@@ -697,7 +699,7 @@ async def generate_chat_completion(
             return response
     except Exception as e:
         log.exception(e)
-
+        log.error(f"error response: {response}")
         detail = None
         if isinstance(response, dict):
             if "error" in response:
@@ -707,7 +709,7 @@ async def generate_chat_completion(
 
         raise HTTPException(
             status_code=r.status if r else 500,
-            detail=detail if detail else "Open WebUI: Server Connection Error",
+            detail=detail if detail else "U Chat WebUI: Server Connection Error",
         )
     finally:
         if not streaming and session:

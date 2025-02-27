@@ -111,8 +111,13 @@ def get_ef(
         from sentence_transformers import SentenceTransformer
 
         try:
+            # ef = SentenceTransformer(
+            #     get_model_path(embedding_model, auto_update),
+            #     device=DEVICE_TYPE,
+            #     trust_remote_code=RAG_EMBEDDING_MODEL_TRUST_REMOTE_CODE,
+            # )
             ef = SentenceTransformer(
-                get_model_path(embedding_model, auto_update),
+                os.getenv("SENTENCE_TRANSFORMERS_HOME"),
                 device=DEVICE_TYPE,
                 trust_remote_code=RAG_EMBEDDING_MODEL_TRUST_REMOTE_CODE,
             )
@@ -733,6 +738,12 @@ def save_docs_to_vector_db(
     log.info(
         f"save_docs_to_vector_db: document {_get_docs_info(docs)} {collection_name}"
     )
+
+    # collection = VECTOR_DB_CLIENT.client.get_or_create_collection(
+    #     name=collection_name,
+    #     metadata={"description": collection_name}  # 可选
+    # )
+
 
     # Check if entries with the same hash (metadata.hash) already exist
     if metadata and "hash" in metadata:

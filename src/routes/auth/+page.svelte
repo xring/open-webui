@@ -155,7 +155,7 @@
 				<div class=" self-center">
 					<img
 						crossorigin="anonymous"
-						src="./static/splash.png"
+						src="/static/splash.png"
 						class=" w-6 rounded-full"
 						alt="logo"
 					/>
