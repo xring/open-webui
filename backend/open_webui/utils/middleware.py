@@ -1391,6 +1391,7 @@ async def process_chat_response(
             DETECT_CODE_INTERPRETER = metadata.get("features", {}).get(
                 "code_interpreter", False
             )
+            DETECT_REASONING_CONTENT = False
 
             reasoning_tags = [
                 "think",
@@ -1423,6 +1424,7 @@ async def process_chat_response(
                 async def stream_body_handler(response):
                     nonlocal content
                     nonlocal content_blocks
+                    nonlocal DETECT_REASONING_CONTENT
 
                     response_tool_calls = []
 
@@ -1495,6 +1497,25 @@ async def process_chat_response(
 
                                 value = delta.get("content")
 
+                                possible_reasoning_keys = os.getenv("REASONING_KEY", "reasoning_content").split(';')
+                                reasoning_value = None
+                                for reasoning_key in possible_reasoning_keys:
+                                    reasoning_key = reasoning_key.strip()
+                                    if reasoning_key:
+                                        reasoning_value_t = delta.get(reasoning_key)
+                                        if reasoning_value_t:
+                                            reasoning_value = reasoning_value_t
+                                            break
+
+                                if DETECT_REASONING_CONTENT:
+                                    if reasoning_value is not None:
+                                        value = reasoning_value
+                                    else:
+                                        DETECT_REASONING_CONTENT = False
+                                        value = f"</think>\n{value}"
+                                elif reasoning_value is not None:
+                                    DETECT_REASONING_CONTENT = True
+                                    value = f"<think>\n{reasoning_value}"
                                 if value:
                                     content = f"{content}{value}"
 

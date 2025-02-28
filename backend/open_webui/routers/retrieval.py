@@ -739,10 +739,10 @@ def save_docs_to_vector_db(
         f"save_docs_to_vector_db: document {_get_docs_info(docs)} {collection_name}"
     )
 
-    # collection = VECTOR_DB_CLIENT.client.get_or_create_collection(
-    #     name=collection_name,
-    #     metadata={"description": collection_name}  # 可选
-    # )
+    collection = VECTOR_DB_CLIENT.client.get_or_create_collection(
+        name=collection_name,
+        metadata={"description": collection_name}  # 可选
+    )
 
 
     # Check if entries with the same hash (metadata.hash) already exist
